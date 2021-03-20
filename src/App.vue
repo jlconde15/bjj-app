@@ -1,24 +1,26 @@
 <template>
-  <img src="./assets/logo.png">
-  <div>
-    <p>
-      If Element Plus is successfully added to this project, you'll see an
-      <code v-text="'<el-button>'"></code>
-      below
-    </p>
-    <el-button type="primary">el-button</el-button>
-  </div>
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  
+  
+  <el-tabs v-model="activeName" type="border-card">
+    <el-tab-pane label="Technique" name="first"><Technique/></el-tab-pane>
+    <el-tab-pane label="Question" name="second"><Question/></el-tab-pane>
+  </el-tabs>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Technique from './components/Technique.vue'
+import Question from './components/Question.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    Technique, Question
+  },
+  data() {
+      return {
+        activeName: 'first'
+      };
+    },
 }
 </script>
 
