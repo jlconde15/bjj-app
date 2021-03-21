@@ -14,22 +14,37 @@
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="Description">
-          <el-input type="textarea" v-model="form.description"></el-input>
+          <el-input type="textarea" v-model="form.description" rows="10"></el-input>
+        </el-form-item>
+        <el-form-item label="Links">
+          <el-input type="textarea" v-model="form.links"></el-input>
         </el-form-item>
         <el-row>
-          <el-col :span="8">
+          <el-col span="4">
             <el-form-item label="Available for">
               <el-checkbox-group v-model="form.available">
-                <el-checkbox label="Gi" name="available" border></el-checkbox>
-                <el-checkbox
-                  label="No Gi"
-                  name="available"
-                  border
-                ></el-checkbox>
+                <el-checkbox label="Gi" name="available"></el-checkbox>
+                <el-checkbox label="No Gi" name="available"></el-checkbox>
               </el-checkbox-group>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col span="4">
+            <el-form-item label="Category">
+              <el-select
+                v-model="form.region"
+                placeholder="please select the category"
+              >
+                <el-option
+                  v-for="category in categories"
+                  :key="category"
+                  :label="category"
+                  :value="category"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col span="8">
             <el-form-item label="My Position">
               <el-select
                 v-model="form.myPosition"
@@ -52,7 +67,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
+          <el-col span="8">
             <el-form-item label="Opponent Position">
               <el-select
                 v-model="form.opponentPosition"
@@ -78,30 +93,19 @@
         </el-row>
       </el-form>
 
-      <el-divider><i class="el-icon-star-on"></i></el-divider>
-      <h3>
-        Steps
-      </h3>
-      <el-divider></el-divider>
-      <el-form :inline="true" :model="formStep">
-        <el-form-item label="Order">
-          <el-input v-model="formStep.order" placeholder="Order"></el-input>
-        </el-form-item>
-        <el-form-item label="Description">
-          <el-input type="textarea" v-model="formStep.description"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="addStep">Add Step</el-button>
-        </el-form-item>
-      </el-form>
       <el-row>
-        <el-col :span="4"></el-col>
-        <el-col :span="16">
+        <el-col :span="24"
+          ><div class="grid-content bg-purple-dark">Steps</div></el-col
+        >
+      </el-row>
+      <el-divider></el-divider>
+      <el-container>
+        <aside width="700px">
           <el-table
             :data="steps"
             :default-sort="{ prop: 'order', order: 'asccending' }"
             stripe
-            style="width: 100%"
+            style="width: 500px"
           >
             <el-table-column prop="order" label="Order" width="180">
             </el-table-column>
@@ -124,9 +128,28 @@
               </template>
             </el-table-column>
           </el-table>
-        </el-col>
-        <el-col :span="4"></el-col>
-      </el-row>
+        </aside>
+        <main width="500px" style="margin-left:30px">
+          <el-form :inline="true" :model="formStep" label-position="top">
+            <el-form-item label="Order">
+              <el-input-number v-model="formStep.order"></el-input-number>
+            </el-form-item>
+            <el-form-item
+              label="Description"
+              style="width: 900px; margin-left: 20px"
+            >
+              <el-input
+                type="textarea"
+                v-model="formStep.description"
+              ></el-input>
+            </el-form-item>
+            <el-form-item style="margin-top:70px">
+              <el-button type="primary" @click="addStep">Add Step</el-button>
+            </el-form-item>
+          </el-form>
+        </main>
+      </el-container>
+
       <el-form-item>
         <el-button type="primary" @click="onSubmit">Create</el-button>
         <el-button>Cancel</el-button>
@@ -134,12 +157,9 @@
     </el-main>
     <el-row>
       <el-col :span="24"
-        ><div class="grid-content bg-purple-dark"></div
-      ></el-col>
+        ><div class="grid-content bg-purple-dark">Techniques</div></el-col
+      >
     </el-row>
-    <h3>
-        Techniques
-    </h3>
     <el-row>
       <el-col :span="24">
         <el-table
@@ -182,6 +202,17 @@ export default {
     return {
       steps: [],
       techniques: [],
+      categories: [
+        "Takedown",
+        "Escape",
+        "Submission",
+        "Choke",
+        "Sweep",
+        "Mount",
+        "Side control",
+        "Back Take",
+        "Tourtle",
+      ],
       positions: [
         {
           label: "doing...",
@@ -224,7 +255,7 @@ export default {
       ],
       formStep: {
         id: null,
-        order: "",
+        order: 1,
         description: "",
       },
       form: {
@@ -233,12 +264,14 @@ export default {
         available: [],
         myPosition: "",
         opponentPosition: "",
+        links: "",
       },
     };
   },
   methods: {
     deleteStep(index, row) {
       this.steps = this.steps.filter((step) => step.id !== row.id);
+      this.formStep.order = this.steps.length;
     },
     editStep(index, row) {
       this.formStep = { ...row };
@@ -256,7 +289,7 @@ export default {
         });
       }
       this.formStep.id = null;
-      this.formStep.order = null;
+      this.formStep.order = this.steps.length;
       this.formStep.description = null;
     },
     onSubmit() {
@@ -280,7 +313,9 @@ export default {
           this.form.available = [];
           this.form.myPosition = "";
           this.form.opponentPosition = "";
+          this.form.links = "";
           this.steps = [];
+          this.formStep.order = 1;
           this.getTechniques();
         });
       } else {
@@ -306,8 +341,8 @@ export default {
     },
     handleEdit(index) {
       this.id = this.techniques[index].id;
-      this.form = {...this.techniques[index]}
-      this.steps = {...this.techniques[index].steps}
+      this.form = { ...this.techniques[index] };
+      this.steps = { ...this.techniques[index].steps };
       this.steps = [];
       for (const id in this.techniques[index].steps) {
         let step = this.techniques[index].steps[id];
@@ -317,24 +352,24 @@ export default {
     },
     handleDelete(index) {
       fetch(
-          "https://bjj-app-30893-default-rtdb.firebaseio.com/techniques/" +
-            this.techniques[index].id +
-            ".json",
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        ).then(() => {
-          this.form.name = "";
-          this.form.description = "";
-          this.form.available = [];
-          this.form.myPosition = "";
-          this.form.opponentPosition = "";
-          this.steps = [];
-          this.getTechniques();
-        });
+        "https://bjj-app-30893-default-rtdb.firebaseio.com/techniques/" +
+          this.techniques[index].id +
+          ".json",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then(() => {
+        this.form.name = "";
+        this.form.description = "";
+        this.form.available = [];
+        this.form.myPosition = "";
+        this.form.opponentPosition = "";
+        this.steps = [];
+        this.getTechniques();
+      });
     },
     getTechniques() {
       fetch(
@@ -355,7 +390,7 @@ export default {
             this.techniques.push(technique);
           }
         });
-    }
+    },
   },
   mounted() {
     this.getTechniques();
@@ -382,6 +417,7 @@ export default {
 .grid-content {
   border-radius: 4px;
   min-height: 36px;
+  padding-top: 10px;
 }
 .row-bg {
   padding: 10px 0;
