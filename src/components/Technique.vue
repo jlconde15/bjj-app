@@ -14,7 +14,11 @@
           <el-input v-model="form.name"></el-input>
         </el-form-item>
         <el-form-item label="Description">
-          <el-input type="textarea" v-model="form.description" rows="10"></el-input>
+          <el-input
+            type="textarea"
+            v-model="form.description"
+            rows="10"
+          ></el-input>
         </el-form-item>
         <el-form-item label="Links">
           <el-input type="textarea" v-model="form.links"></el-input>
@@ -31,7 +35,7 @@
           <el-col span="4">
             <el-form-item label="Category">
               <el-select
-                v-model="form.region"
+                v-model="form.category"
                 placeholder="please select the category"
               >
                 <el-option
@@ -92,67 +96,69 @@
           </el-col>
         </el-row>
       </el-form>
-
-      <el-row>
-        <el-col :span="24"
-          ><div class="grid-content bg-purple-dark">Steps</div></el-col
-        >
-      </el-row>
-      <el-divider></el-divider>
-      <el-container>
-        <aside width="700px">
-          <el-table
-            :data="steps"
-            :default-sort="{ prop: 'order', order: 'asccending' }"
-            stripe
-            style="width: 500px"
-          >
-            <el-table-column prop="order" label="Order" width="180">
-            </el-table-column>
-            <el-table-column prop="description" label="Description" width="180">
-            </el-table-column>
-            <el-table-column label="Operations">
-              <template #default="scope">
-                <el-button
-                  size="mini"
-                  @click="editStep(scope.$index, scope.row)"
-                  type="primary"
-                  icon="el-icon-edit"
-                ></el-button>
-                <el-button
-                  size="mini"
-                  @click="deleteStep(scope.$index, scope.row)"
-                  type="danger"
-                  icon="el-icon-delete"
-                ></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </aside>
-        <main width="500px" style="margin-left:30px">
-          <el-form :inline="true" :model="formStep" label-position="top">
-            <el-form-item label="Order">
-              <el-input-number v-model="formStep.order"></el-input-number>
-            </el-form-item>
-            <el-form-item
-              label="Description"
-              style="width: 900px; margin-left: 20px"
-            >
-              <el-input
-                type="textarea"
-                v-model="formStep.description"
-              ></el-input>
-            </el-form-item>
-            <el-form-item style="margin-top:70px">
-              <el-button type="primary" @click="addStep">Add Step</el-button>
-            </el-form-item>
-          </el-form>
-        </main>
-      </el-container>
-
+      <el-collapse>
+        <el-collapse-item title="Steps">
+          <el-container>
+            <aside style="width: 700px">
+              <el-table
+                :data="steps"
+                :default-sort="{ prop: 'order', order: 'asccending' }"
+                stripe
+                style="width: 700px"
+              >
+                <el-table-column prop="order" label="Order" width="80">
+                </el-table-column>
+                <el-table-column
+                  prop="description"
+                  label="Description"
+                  width="450"
+                >
+                </el-table-column>
+                <el-table-column label="Operations" width="120">
+                  <template #default="scope">
+                    <el-button
+                      size="mini"
+                      @click="editStep(scope.$index, scope.row)"
+                      type="primary"
+                      icon="el-icon-edit"
+                    ></el-button>
+                    <el-button
+                      size="mini"
+                      @click="deleteStep(scope.$index, scope.row)"
+                      type="danger"
+                      icon="el-icon-delete"
+                    ></el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </aside>
+            <main style="width: 1200px">
+              <el-form :inline="true" :model="formStep" label-position="top">
+                <el-form-item label="Order" style="width: 80px;">
+                  <el-input v-model="formStep.order"></el-input>
+                </el-form-item>
+                <el-form-item
+                  label="Description"
+                  style="width: 850px; margin-left: 20px"
+                >
+                  <el-input
+                    type="textarea"
+                    v-model="formStep.description"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item style="margin-top:70px">
+                  <el-button type="primary" @click="addStep"
+                    >Add Step</el-button
+                  >
+                </el-form-item>
+              </el-form>
+            </main>
+          </el-container>
+        </el-collapse-item>
+      </el-collapse>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">Create</el-button>
-        <el-button>Cancel</el-button>
+        <el-button @click="clearForm">Cancel</el-button>
       </el-form-item>
     </el-main>
     <el-row>
@@ -289,7 +295,7 @@ export default {
         });
       }
       this.formStep.id = null;
-      this.formStep.order = this.steps.length;
+      this.formStep.order = this.steps.length + 1;
       this.formStep.description = null;
     },
     onSubmit() {
@@ -308,14 +314,7 @@ export default {
             body: JSON.stringify(body),
           }
         ).then(() => {
-          this.form.name = "";
-          this.form.description = "";
-          this.form.available = [];
-          this.form.myPosition = "";
-          this.form.opponentPosition = "";
-          this.form.links = "";
-          this.steps = [];
-          this.formStep.order = 1;
+          this.clearForm();
           this.getTechniques();
         });
       } else {
@@ -329,17 +328,25 @@ export default {
             body: JSON.stringify(body),
           }
         ).then(() => {
-          this.form.name = "";
-          this.form.description = "";
-          this.form.available = [];
-          this.form.myPosition = "";
-          this.form.opponentPosition = "";
-          this.steps = [];
+          this.clearForm();
           this.getTechniques();
         });
       }
     },
+    clearForm() {
+      this.id = null;
+      this.form.name = "";
+      this.form.description = "";
+      this.form.available = [];
+      this.form.category = "";
+      this.form.myPosition = "";
+      this.form.opponentPosition = "";
+      this.form.links = "";
+      this.steps = [];
+      this.formStep.order = 1;
+    },
     handleEdit(index) {
+      console.log(this.techniques[index]);
       this.id = this.techniques[index].id;
       this.form = { ...this.techniques[index] };
       this.steps = { ...this.techniques[index].steps };
@@ -349,6 +356,7 @@ export default {
         step.id = id;
         this.steps.push(step);
       }
+      this.formStep.order = this.steps.length + 1;
     },
     handleDelete(index) {
       fetch(

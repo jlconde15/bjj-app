@@ -204,6 +204,7 @@ export default {
           this.name = "";
           this.answer = "";
           this.link = "";
+          this.techniqueId = null;
           this.asked = 0;
           this.success = 0;
           this.getQuestions();
